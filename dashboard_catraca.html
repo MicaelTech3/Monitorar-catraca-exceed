@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Monitor de Catraca</title>
+<link rel="stylesheet" href="css/styles.css">
+<link rel="shortcut icon" href="css/catracas.png" type="image/x-icon">
+</head>
+<body>
+
+<header class="topbar">
+  <button class="sidebar-toggle" onclick="toggleSidebar()">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  </button>
+  <div class="topbar-logo">
+    <div class="logo-icon">⊕</div>
+    Monitor de Catraca
+  </div>
+  <div class="topbar-sep"></div>
+  <div class="topbar-clock" id="topbar-clock">--:--:--.---</div>
+  <div class="topbar-right">
+    <div class="arduino-pill" id="arduino-pill">
+      <div class="pill-dot"></div>
+      <span id="arduino-label">Arduino —</span>
+    </div>
+  </div>
+</header>
+
+<div class="alert-banner" id="alert-banner">
+  <span id="alert-icon">🔌</span>
+  <span id="alert-msg">—</span>
+  <span class="alert-time" id="alert-time">—</span>
+</div>
+
+<div class="layout">
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-sec">
+      <div class="sb-lbl">Navegação</div>
+      <button class="nav-item active" onclick="goTab('dashboard',this)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Dashboard
+      </button>
+      <button class="nav-item" onclick="goTab('install',this)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+        Instalação
+      </button>
+    </div>
+
+    <div class="sb-div"></div>
+
+    <div class="sb-sec" style="flex:1">
+      <div class="sb-lbl">Histórico por dia</div>
+      <div class="day-list" id="day-list">
+        <div style="padding:.4rem;font-family:var(--mono);font-size:.7rem;color:var(--text3)">aguardando...</div>
+      </div>
+    </div>
+
+    <div class="sb-div"></div>
+
+    <div class="sb-sec">
+      <div class="sb-lbl">Ações</div>
+      <button class="nav-item" onclick="openModal()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.51"/></svg>
+        Zerar contagem
+      </button>
+      <button class="nav-item" onclick="toggleConfig()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+        Firebase
+      </button>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <!-- DASHBOARD -->
+    <div class="tab-content active" id="tab-dashboard">
+
+      <div class="config-panel" id="config-panel">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
+          <span style="font-family:var(--mono);font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text2);font-weight:600">Configuração Firebase</span>
+          <button onclick="toggleConfig()" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:1.1rem">✕</button>
+        </div>
+        <div class="cfg-grid">
+          <div class="field"><label>API Key</label><input id="cfg-apiKey" placeholder="AIzaSy..."></div>
+          <div class="field"><label>Auth Domain</label><input id="cfg-authDomain" placeholder="projeto.firebaseapp.com"></div>
+          <div class="field"><label>Database URL</label><input id="cfg-dbUrl" placeholder="https://projeto-rtdb.firebaseio.com"></div>
+          <div class="field"><label>Project ID</label><input id="cfg-projectId" placeholder="meu-projeto"></div>
+        </div>
+        <div style="margin-top:.9rem"><button class="btn-primary" onclick="salvarConfig()">Conectar</button></div>
+      </div>
+
+      <div class="hero">
+        <div class="hero-left">
+          <div class="hero-eyebrow">Passagens hoje</div>
+          <div class="hero-num" id="contador-total">—</div>
+          <div class="hero-ms" id="hero-ms">milissegundos: —</div>
+        </div>
+        <div class="hero-div"></div>
+        <div class="hero-right">
+          <div><div class="h-stat-key">Última passagem</div><div class="h-stat-val" id="meta-ultima">—</div></div>
+          <div><div class="h-stat-key">Data</div><div class="h-stat-val" id="meta-data">—</div></div>
+          <div><div class="h-stat-key">Total acumulado</div><div class="h-stat-val" id="meta-total-geral">—</div></div>
+          <div><div class="h-stat-key">Status do Arduino</div><div class="h-stat-val" id="meta-arduino">—</div></div>
+        </div>
+      </div>
+
+      <div class="cards">
+        <div class="card">
+          <div class="card-label">Esta hora</div>
+          <div class="card-value" id="card-hora">—</div>
+          <div class="card-sub" id="card-hora-range">—</div>
+        </div>
+        <div class="card">
+          <div class="card-label">Total hoje</div>
+          <div class="card-value" id="card-total-hoje">—</div>
+          <div class="card-sub" id="card-data-hoje">—</div>
+        </div>
+        <div class="card">
+          <div class="card-label">Total geral</div>
+          <div class="card-value" id="card-total-geral">—</div>
+          <div class="card-sub">todos os registros</div>
+        </div>
+        <div class="card">
+          <div class="card-label">Último ms</div>
+          <div class="card-value" id="card-ms" style="font-size:1.6rem">—</div>
+          <div class="card-sub">milissegundos</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            Registro de passagens
+            <span class="panel-badge" id="feed-count">0</span>
+          </div>
+        </div>
+        <div class="feed-head">
+          <span>Hora</span><span>Data</span><span>Milissegundos</span><span>Passagem #</span>
+        </div>
+        <div class="feed" id="feed">
+          <div style="padding:2.5rem;text-align:center;font-family:var(--mono);font-size:.77rem;color:var(--text3)">aguardando eventos...</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- INSTALAÇÃO -->
+    <div class="tab-content" id="tab-install">
+      <div class="install-wrap">
+
+        <div class="install-hero">
+          <div class="install-icon">🔩</div>
+          <div>
+            <h2>Guia de Instalação</h2>
+            <p>Montagem completa do sistema de contagem de catraca com Arduino, Python e Firebase. O script Python envia o status de conexão do Arduino ao Firebase em tempo real — este monitor exibe alertas quando o cabo é desconectado.</p>
+            <div class="badges">
+              <span class="badge green">Arduino Uno / Mega</span>
+              <span class="badge green">Python 3.8+</span>
+              <span class="badge amber">Firebase RTDB</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="step-card open" onclick="toggleStep(event,this)">
+          <div class="step-hdr">
+            <div class="step-num">00</div>
+            <div class="step-title">Arquitetura do sistema</div>
+            <svg class="step-chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>
+          <div class="step-body">
+            <p>Cinco camadas comunicando em tempo real. O Python grava <code style="font-family:var(--mono);color:var(--accent)">/status/arduino</code> no Firebase a cada mudança de estado, e este monitor exibe o alerta visualmente.</p>
+            <div class="diag">
+              <div class="diag-box"><span class="lbl2">Hardware</span>Sensor D2+GND</div>
+              <div class="diag-arr">→</div>
+              <div class="diag-box"><span class="lbl2">Firmware</span>Arduino 9600</div>
+              <div class="diag-arr">→</div>
+              <div class="diag-box"><span class="lbl2">Software</span>Python</div>
+              <div class="diag-arr">→</div>
+              <div class="diag-box"><span class="lbl2">Cloud</span>Firebase RTDB</div>
+              <div class="diag-arr">→</div>
+              <div class="diag-box"><span class="lbl2">Monitor</span>Este site</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step-card" onclick="toggleStep(event,this)">
+          <div class="step-hdr">
+            <div class="step-num">01</div>
+            <div class="step-title">Hardware — Conexão do Arduino</div>
+            <svg class="step-chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>
+          <div class="step-body">
+            <p>Compatível com Arduino Uno e Mega. Ligação idêntica em ambos.</p>
+            <table class="pin-table">
+              <thead><tr><th>Pino</th><th>Conectar em</th><th>Descrição</th></tr></thead>
+              <tbody>
+                <tr><td>D2</td><td>Sinal do sensor / contato seco</td><td>INPUT_PULLUP — LOW = giro detectado</td></tr>
+                <tr><td>GND</td><td>GND do sensor</td><td>Terra comum</td></tr>
+                <tr><td>USB</td><td>PC / Raspberry Pi</td><td>Serial + alimentação 5V</td></tr>
+              </tbody>
+            </table>
+            <p><strong>Teste de bancada:</strong> encoste um fio entre D2 e GND para simular uma passagem — LED 13 piscará.</p>
+          </div>
+        </div>
+
+        <div class="step-card" onclick="toggleStep(event,this)">
+          <div class="step-hdr">
+            <div class="step-num">02</div>
+            <div class="step-title">Firmware — Código do Arduino</div>
+            <svg class="step-chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>
+          <div class="step-body">
+            <p>Carregue via Arduino IDE. Debounce de 300 ms evita contagem dupla.</p>
+            <div class="code-block"><span class="cm">/* Firmware Catraca — Arduino Uno/Mega */</span>
+
+<span class="kw">const int</span> PINO_SENSOR = <span class="num">2</span>;
+<span class="kw">const int</span> PINO_LED    = <span class="num">13</span>;
+<span class="kw">const int</span> DEBOUNCE_MS = <span class="num">300</span>;
+
+<span class="kw">bool</span>          estado_anterior = HIGH;
+<span class="kw">unsigned long</span> ultimo_giro     = <span class="num">0</span>;
+
+<span class="fn">void</span> setup() {
+  Serial.<span class="fn">begin</span>(<span class="num">9600</span>);
+  <span class="fn">pinMode</span>(PINO_SENSOR, INPUT_PULLUP);
+  <span class="fn">pinMode</span>(PINO_LED, OUTPUT);
+  <span class="fn">delay</span>(<span class="num">1000</span>);
+  Serial.<span class="fn">println</span>(<span class="str">"PRONTO"</span>);
+}
+
+<span class="fn">void</span> loop() {
+  <span class="kw">bool</span>          estado_atual = <span class="fn">digitalRead</span>(PINO_SENSOR);
+  <span class="kw">unsigned long</span> agora        = <span class="fn">millis</span>();
+
+  <span class="kw">if</span> (estado_anterior == HIGH && estado_atual == LOW) {
+    <span class="kw">if</span> (agora - ultimo_giro > DEBOUNCE_MS) {
+      ultimo_giro = agora;
+      <span class="fn">digitalWrite</span>(PINO_LED, HIGH);
+      Serial.<span class="fn">println</span>(<span class="str">"GIRO"</span>);
+      <span class="fn">delay</span>(<span class="num">100</span>);
+      <span class="fn">digitalWrite</span>(PINO_LED, LOW);
+    }
+  }
+  estado_anterior = estado_atual;
+}</div>
+          </div>
+        </div>
+
+        <div class="step-card" onclick="toggleStep(event,this)">
+          <div class="step-hdr">
+            <div class="step-num">03</div>
+            <div class="step-title">Python — Script com status do Arduino</div>
+            <svg class="step-chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>
+          <div class="step-body">
+            <p>Grava <code style="font-family:var(--mono);color:var(--accent)">/status/arduino</code> no Firebase em cada mudança: <strong>online</strong> (conectado), <strong>offline</strong> (cabo fora) ou <strong>erro</strong> (acesso negado — feche o Arduino IDE).</p>
+            <div class="code-block"><span class="kw">import</span> serial, serial.tools.list_ports
+<span class="kw">import</span> time, threading, logging
+<span class="kw">from</span> datetime <span class="kw">import</span> datetime
+<span class="kw">import</span> firebase_admin
+<span class="kw">from</span> firebase_admin <span class="kw">import</span> credentials, db
+
+FIREBASE_DB_URL = <span class="str">"https://SEU-PROJETO-rtdb.firebaseio.com"</span>
+BAUD_RATE       = <span class="num">9600</span>
+
+<span class="cm"># Credenciais embutidas (não vai para o git)</span>
+FIREBASE_CREDENTIALS = { <span class="str">"type"</span>: <span class="str">"service_account"</span>, <span class="str">"..."</span>: <span class="str">"..."</span> }
+</div>
+          </div>
+        </div>
+
+        <div class="step-card" onclick="toggleStep(event,this)">
+          <div class="step-hdr">
+            <div class="step-num">04</div>
+            <div class="step-title">Firebase — Rules e estrutura de dados</div>
+            <svg class="step-chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>
+          <div class="step-body">
+            <p>Adicione o nó <code style="font-family:var(--mono);color:var(--accent)">/status</code> nas Database Rules:</p>
+            <div class="code-block">{
+  <span class="str">"rules"</span>: {
+    <span class="str">"contador"</span>: { <span class="str">".read"</span>: <span class="str">"true"</span>, <span class="str">".write"</span>: <span class="str">"true"</span> },
+    <span class="str">"eventos"</span>:  { <span class="str">".read"</span>: <span class="str">"true"</span>, <span class="str">".write"</span>: <span class="str">"true"</span> },
+    <span class="str">"status"</span>:   { <span class="str">".read"</span>: <span class="str">"true"</span>, <span class="str">".write"</span>: <span class="str">"true"</span> }
+  }
+}</div>
+            <div class="code-block">/ (root)
+├── contador/
+│   └── total: 142
+├── status/
+│   └── arduino/
+│       ├── estado:    "online" | "offline" | "erro"
+│       ├── mensagem:  "Conectado em COM3"
+│       └── timestamp: "2025-01-15T14:32:01.847"
+└── eventos/
+    └── -Nxyz.../
+        ├── timestamp:       "2025-01-15T14:32:01.847"
+        ├── ms:              847
+        ├── data:            "15/01/2025"
+        ├── hora:            "14:32:01"
+        ├── hora_completa:   "14:32:01.847"
+        └── total_acumulado: 142</div>
+          </div>
+        </div>
+
+        <div class="step-card" onclick="toggleStep(event,this)">
+          <div class="step-hdr">
+            <div class="step-num">05</div>
+            <div class="step-title">Executando o sistema</div>
+            <svg class="step-chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>
+          <div class="step-body">
+            <ul>
+              <li>Instalar: <code style="font-family:var(--mono);color:var(--accent)">pip install pyserial firebase-admin</code></li>
+              <li>Carregar o firmware no Arduino via Arduino IDE</li>
+              <li><strong>Fechar o Arduino IDE</strong> (Monitor Serial bloqueia a porta — causa o PermissionError 13)</li>
+              <li>Executar: <code style="font-family:var(--mono);color:var(--accent)">python monitor_catraca.py</code></li>
+            </ul>
+            <div class="code-block"><span class="cm"># Windows — rodar como serviço com NSSM</span>
+nssm install CatracaMonitor "python.exe" "C:\catraca\monitor_catraca.py"
+nssm start CatracaMonitor
+
+<span class="cm"># Linux — systemd service</span>
+sudo nano /etc/systemd/system/catraca.service
+<span class="cm"># ExecStart=/usr/bin/python3 /opt/catraca/monitor_catraca.py</span>
+sudo systemctl enable --now catraca</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <div class="modal-icon">⚠️</div>
+    <h3>Zerar contagem?</h3>
+    <p>Apaga o contador e todo o histórico de eventos no Firebase.<br>Esta ação não pode ser desfeita.</p>
+    <div class="modal-actions">
+      <button class="btn-ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn-danger" id="btn-confirmar" onclick="confirmarZerar()">Sim, zerar</button>
+    </div>
+  </div>
+</div>
+
+<!-- JS separado: firebase-config.js carrega a config, app.js contém toda a lógica -->
+<script type="module" src="js/app.js"></script>
+
+</body>
+</html>
